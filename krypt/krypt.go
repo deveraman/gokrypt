@@ -1,9 +1,12 @@
 package krypt
 
 import (
+	"crypto/aes"
 	"crypto/md5"
 	"crypto/sha256"
 	"crypto/sha512"
+	"encoding/hex"
+	"fmt"
 	"io"
 	"log"
 )
@@ -36,4 +39,20 @@ func SHA512_256(s string) {
 	}
 
 	// fmt.Printf("%x\n", h.Sum(nil))
+}
+
+func AES(key []byte, s string) string {
+	c, err := aes.NewCipher(key)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Println(c.BlockSize())
+
+	out := make([]byte, len(s))
+
+	c.Encrypt(out, []byte(s))
+
+	return hex.EncodeToString(out)
 }
