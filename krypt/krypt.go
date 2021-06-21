@@ -2,57 +2,30 @@ package krypt
 
 import (
 	"crypto/aes"
-	"crypto/md5"
+	"crypto/cipher"
+	"crypto/rand"
 	"crypto/sha256"
-	"crypto/sha512"
 	"encoding/hex"
-	"fmt"
-	"io"
-	"log"
+
+	"golang.org/x/crypto/pbkdf2"
 )
 
-
-func MD5(s string) {
-	h := md5.New()
-	_, err := io.WriteString(h, s)
-	if err != nil {
-		log.Fatal(err)
+func GetKey(password string, salt []byte) ([]byte, []byte) {
+	if salt == nil {
+		salt = make([]byte, 16)
+		rand.Read(salt)
 	}
-	// fmt.Printf("%x\n", h.Sum(nil))
+	return pbkdf2.Key([]byte(password), salt, 1000, 32, sha256.New), salt
 }
 
-func SHA256(s string) {
-	h := sha256.New()
-	_, err := h.Write([]byte(s))
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	// fmt.Printf("%x\n", h.Sum(nil))
-}
-
-func SHA512_256(s string) {
-	h := sha512.New512_256()
-	_, err := h.Write([]byte(s))
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	// fmt.Printf("%x\n", h.Sum(nil))
-}
-
-func AES(key []byte, s string) string {
-	c, err := aes.NewCipher(key)
-
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	fmt.Println(c.BlockSize())
-
-	out := make([]byte, len(s))
-
-	c.Encrypt(out, []byte(s))
-
-	return hex.EncodeToString(out)
+func Encrypt(passkey string, txt string) string {
+	key, salt := GetKey(passkey, nil)
+	iv := make([]byte, 12)
+	// http://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-38d.pdf
+	// Section 8.2
+	rand.Read(iv)
+	newBlock, _ := aes.NewCipher(key)
+	gcm, _ := cipher.NewGCM(newBlock)
+	encData := gcm.Seal(nil, iv, []byte(txt), nil)
+	return hex.EncodeToString(salt) + "-" + hex.EncodeToString(iv) + "-" + hex.EncodeToString(encData)
 }
