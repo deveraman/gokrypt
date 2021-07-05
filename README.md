@@ -4,7 +4,7 @@ An encrytion package written in Go to encrypt passwords/strings using AES and pb
 #### Why do this, when go comes with bcrypt?
 The main reason for me was to learn and explore more and new aspects of GoLang. So i tried to create this and it is by no means this was created for a production grade application. It was only a personal project where i was learning backend in GoLang. So why not :D
 
-## Make sure you have go installed and running, if you don't then refer to the official website(https://golang.org/)
+#### Make sure you have go installed and running, if you don't then refer to the official website(https://golang.org/)
 
 ## How to run
 1. Clone ``` git clone https://github.com/ramanverma2k/gokrypt ```.
